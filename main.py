@@ -7,8 +7,14 @@ import matplotlib.pyplot as plt
 import json
 import subprocess
 import matplotlib
+from rich.console import Console
+from rich.table import Table
+from rich import box
 
 matplotlib.use('Agg')
+
+# Create a Console instance for rich output
+console = Console()
 
 # Import platform-specific modules
 if platform.system() == "Windows":
@@ -91,8 +97,15 @@ def analyze_logs(df):
     logins = df[df['Message'].str.contains('session opened|login|auth', case=False, na=False)]
     logins_count = logins['ComputerName'].value_counts()
 
-    print("Login Frequencies:")
-    print(logins_count)
+    # Display login frequencies in a table
+    table = Table(title="Login Frequencies", box=box.SIMPLE_HEAVY)
+    table.add_column("User", no_wrap=True)
+    table.add_column("Login Count")
+
+    for user, count in logins_count.items():
+        table.add_row(user, str(count))
+
+    console.print(table)
 
     return logins_count
 
@@ -153,6 +166,7 @@ def main():
 
     # Step 3: Analyze data
     if not df.empty:
+        print("Analyzing Logs")
         login_counts = analyze_logs(df)
     else:
         print("No logs available for analysis.")
@@ -160,6 +174,7 @@ def main():
 
     # Step 4: Visualize the analysis results
     if not login_counts.empty:
+        print("Visualizing Activity")
         visualize_activity(login_counts, data_dir)
     else:
         print("No login data available for visualization.")
