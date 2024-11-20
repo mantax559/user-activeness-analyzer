@@ -6,12 +6,23 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import json
 import subprocess
+import matplotlib
+
+matplotlib.use('Agg')
 
 # Import platform-specific modules
 if platform.system() == "Windows":
     import win32evtlog
     import win32evtlogutil
     import win32api
+
+
+# Ensure the 'data' directory exists
+def ensure_data_directory():
+    data_dir = "data"
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+    return data_dir
 
 
 # Function to collect logs from Windows Event Viewer
@@ -77,10 +88,7 @@ def clean_data(logs):
 # Function to analyze user activities
 def analyze_logs(df):
     # Calculate login frequency and activity duration
-    print("Dataframe head for inspection:")
-    print(df.head())  # Patikrinkite pirmas kelias eilutes, kad matytumėte, ar yra naudingų duomenų
-
-    logins = df[df['Message'].str.contains('login|session|auth', case=False, na=False)]
+    logins = df[df['Message'].str.contains('session opened|login|auth', case=False, na=False)]
     logins_count = logins['ComputerName'].value_counts()
 
     print("Login Frequencies:")
@@ -90,15 +98,16 @@ def analyze_logs(df):
 
 
 # Function to visualize user activities
-def visualize_activity(logins_count):
+def visualize_activity(logins_count, output_dir):
     if not logins_count.empty:
         logins_count.plot(kind='bar', title='Login Frequency per User')
         plt.xlabel('User')
         plt.ylabel('Login Count')
         plt.xticks(rotation=45)
         plt.tight_layout()
-        plt.savefig('login_frequency.png')
-        plt.show()
+        output_path = os.path.join(output_dir, 'login_frequency.png')
+        plt.savefig(output_path)
+        print(f"Visualization saved as '{output_path}'")
     else:
         print("No login data available to visualize.")
 
@@ -120,6 +129,9 @@ def collect_command_history_linux(command_history_file='~/.bash_history'):
 
 # Main function
 def main():
+    # Ensure the 'data' directory exists
+    data_dir = ensure_data_directory()
+
     # Determine the platform
     system_platform = platform.system()
 
@@ -148,13 +160,15 @@ def main():
 
     # Step 4: Visualize the analysis results
     if not login_counts.empty:
-        visualize_activity(login_counts)
+        visualize_activity(login_counts, data_dir)
     else:
         print("No login data available for visualization.")
 
     # Save collected data as JSON for future use
-    with open('logs.json', 'w') as f:
+    log_path = os.path.join(data_dir, 'logs.json')
+    with open(log_path, 'w') as f:
         json.dump(logs, f, default=str)
+    print(f"Logs saved to '{log_path}'")
 
 
 if __name__ == "__main__":
