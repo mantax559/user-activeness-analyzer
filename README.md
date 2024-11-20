@@ -32,7 +32,8 @@ A tool for analyzing both Windows and Linux user activity patterns through syste
 1. **Clone the repository**:
    
    ```bash
-   git clone https://github.com/mantax559/UserActivenessAnalyzer.git
+   git clone https://github.com/mantax559/user-activeness-analyzer.git
+   cd user-activeness-analyzer
    ```
 
 2. **Set up virtual environment** (optional but recommended):
