@@ -6,6 +6,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import json
 import matplotlib
+import subprocess
 from rich.console import Console
 from rich.table import Table
 from rich import box
@@ -50,6 +51,24 @@ def collect_event_logs_windows(log_type='Security'):
     finally:
         if handle:
             win32evtlog.CloseEventLog(handle)
+    return logs
+
+# Function to collect network activity on Windows using netstat
+def collect_network_activity_windows():
+    logs = []
+    try:
+        netstat_output = subprocess.check_output("netstat -an", shell=True, text=True)
+        timestamp = datetime.now()
+        for line in netstat_output.splitlines():
+            if line.strip().startswith("TCP") or line.strip().startswith("UDP"):
+                logs.append({
+                    'TimeGenerated': timestamp,
+                    'SourceName': 'netstat',
+                    'Message': line.strip(),
+                    'ComputerName': platform.node()
+                })
+    except subprocess.CalledProcessError as e:
+        console.print(f"[bold red]Error executing netstat command:[/bold red] {e}")
     return logs
 
 # Function to collect logs from Linux log files
@@ -146,7 +165,7 @@ def analyze_logs(df):
 
 # Function to analyze network activity
 def analyze_network_activity(df):
-    network_logs = df[df['Message'].str.contains('network|eth0|wlan|dhcp', case=False, na=False)]
+    network_logs = df[df['Message'].str.contains('network|eth0|wlan|dhcp|netstat', case=False, na=False)]
     network_activity_count = network_logs['ComputerName'].value_counts()
 
     # Display network activity frequencies in a table
@@ -236,13 +255,16 @@ def main():
 
     # Step 1: Collect event logs based on the platform
     logs = []
+    command_logs = []
+    network_logs = []
+
     if system_platform == "Windows":
         logs = collect_event_logs_windows()
+        network_logs = collect_network_activity_windows()
+        logs.extend(network_logs)
     elif system_platform == "Linux":
         # Collect system logs
-        logs = collect_event_logs_linux()
-        # Collect command history
-        command_logs = collect_command_history_linux()
+        logs = collect_event
         logs.extend(command_logs)
         # Collect network activity logs
         network_logs = collect_network_activity_linux()
@@ -268,7 +290,7 @@ def main():
     if not login_counts.empty:
         console.print("Visualizing Activity")
         visualize_activity(login_counts, session_durations, data_dir)
-        visualize_command_frequency(logs, data_dir)
+        visualize_command_frequency(command_logs, data_dir)
         visualize_network_activity(network_activity_count, data_dir)
     else:
         console.print("[bold yellow]No login data available for visualization.[/bold yellow]")
