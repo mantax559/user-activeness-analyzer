@@ -54,14 +54,14 @@ def main():
     analyzer = get_system_analyzer()
     logs = analyzer.collect_event_logs()
     network_logs = analyzer.collect_network_activity()
-    logs.extend(network_logs)
+    logs += network_logs
     df = clean_data(logs)
 
     logins_processor = LoginsProcessor()
     network_activity_processor = NetworkActivityProcessor()
     anomalies_processor = AnomaliesProcessor()
     visualizer = Visualizer()
-
+    
     if df.empty:
         print("No logs available for analysis.")
         return
@@ -70,12 +70,13 @@ def main():
     network_activity_count = network_activity_processor.analyze(df)
     anomalies_processor.analyze(df)
 
+
     visualizer.visualize_activity(login_counts, session_durations, data_dir)
     visualizer.visualize_network_activity(network_activity_count, data_dir)
 
     log_path = os.path.join(data_dir, 'logs.json')
     with open(log_path, 'w') as f:
-        json.dump(logs, f, default=str)
+        json.dump(str(logs), f)
     console.print(f"[bold green]Logs saved to '{log_path}'[/bold green]")
 
 if __name__ == "__main__":
