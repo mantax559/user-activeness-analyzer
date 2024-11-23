@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import platform
+import json
 from analyzers.windows_analyzer import WindowsAnalyzer
 from analyzers.linux_analyzer import LinuxAnalyzer
 from analyzers.mac_os_analyzer import MacOSAnalyzer
@@ -8,6 +9,9 @@ from processors.logins_processor import LoginsProcessor
 from processors.network_activity_processor import NetworkActivityProcessor
 from processors.anomalies_processor import AnomaliesProcessor
 from processors.visualizer import Visualizer
+from rich.console import Console
+
+console = Console()
 
 def ensure_data_directory():
     data_dir = "data"
@@ -57,6 +61,11 @@ def main():
 
     visualizer.visualize_activity(login_counts, session_durations, data_dir)
     visualizer.visualize_network_activity(network_activity_count, data_dir)
-    
+
+    log_path = os.path.join(data_dir, 'logs.json')
+    with open(log_path, 'w') as f:
+        json.dump(logs, f, default=str)
+    console.print(f"[bold green]Logs saved to '{log_path}'[/bold green]")
+
 if __name__ == "__main__":
     main()
