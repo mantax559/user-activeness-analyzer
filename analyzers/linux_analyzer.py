@@ -13,26 +13,35 @@ class LinuxAnalyzer(SystemAnalyzer):
 
     def collect_event_logs(self):
         logs = []
+        failed_login_attempts = 0
+        reboot_events = 0
         for log_file in self.log_files:
             try:
                 with open(log_file, 'r') as file:
                     for line in file:
-                        match = re.match(r'^([A-Za-z]{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+(\w+)\s+sshd\[\d+\]:\s+(.*)$', line)
+                        match = re.match(r'^([A-Za-z]{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+(\w+)\s+(sshd\[\d+\]:\s+.*|systemd\[\d+\]:\s+.*(?i)reboot.*)$', line)
                         if match:
                             log_date_str = match.group(1)
                             try:
                                 log_date = datetime.strptime(log_date_str, '%b %d %H:%M:%S').replace(year=datetime.now().year)
                             except ValueError:
-                                print("ERR: could not resolve log data", log_date_str)
+                                print("ERR: could not resolve log date", log_date_str)
                                 continue
 
                             message = match.group(3).lower()
+                            if "failed password" in message:
+                                failed_login_attempts += 1
+                            
+                            if any(substring in message for substring in ["reboot", "rebooting"]):
+                                reboot_events += 1
 
                             logs.append({
                                 'TimeGenerated': log_date,
                                 'SourceName': "sshd",
-                                'Message': match.group(3),
-                                'ComputerName': match.group(2)
+                                'Message': message,
+                                'ComputerName': match.group(2),
+                                'FailedLoginAttempts': failed_login_attempts,
+                                'RebootEvents': reboot_events
                             })
 
             except FileNotFoundError:

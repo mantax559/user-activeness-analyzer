@@ -66,12 +66,12 @@ def main():
         print("No logs available for analysis.")
         return
     
-    login_counts, session_durations = logins_processor.analyze(df)
+    login_counts, session_durations, failed_logins, reboot_events = logins_processor.analyze(df)
     network_activity_count = network_activity_processor.analyze(df)
     anomalies_processor.analyze(df)
 
 
-    visualizer.visualize_activity(login_counts, session_durations, data_dir)
+    visualizer.visualize_activity(login_counts, session_durations, failed_logins, reboot_events, data_dir)
     visualizer.visualize_network_activity(network_activity_count, data_dir)
 
     log_path = os.path.join(data_dir, 'logs.json')
