@@ -262,9 +262,9 @@ def main():
         logs = collect_event_logs_windows()
         network_logs = collect_network_activity_windows()
         logs.extend(network_logs)
-    elif system_platform == "Linux":
+    elif system_platform == "Linux" or system_platform == "Darwin":
         # Collect system logs
-        logs = collect_event
+        logs = collect_event_logs_linux()
         logs.extend(command_logs)
         # Collect network activity logs
         network_logs = collect_network_activity_linux()
