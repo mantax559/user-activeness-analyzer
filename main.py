@@ -11,24 +11,19 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 
-# Ensure matplotlib works in environments without GUI
 matplotlib.use('Agg')
 
-# Create a Console instance for rich output
 console = Console()
 
-# Import platform-specific modules
 if platform.system() == "Windows":
     import win32evtlog
 
-# Ensure the 'data' directory exists
 def ensure_data_directory():
     data_dir = "data"
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
     return data_dir
 
-# Function to collect logs from Windows Event Viewer
 def collect_event_logs_windows(log_type='Security'):
     logs = []
     handle = None
@@ -53,7 +48,6 @@ def collect_event_logs_windows(log_type='Security'):
             win32evtlog.CloseEventLog(handle)
     return logs
 
-# Function to collect network activity on Windows using netstat
 def collect_network_activity_windows():
     logs = []
     try:
@@ -71,14 +65,12 @@ def collect_network_activity_windows():
         console.print(f"[bold red]Error executing netstat command:[/bold red] {e}")
     return logs
 
-# Function to collect logs from Linux log files
 def collect_event_logs_linux(log_files=['/var/log/auth.log', '/var/log/syslog', '/var/log/kern.log']):
     logs = []
     for log_file in log_files:
         try:
             with open(log_file, 'r') as file:
                 for line in file:
-                    # Parse the log line using regex to extract useful fields
                     match = re.match(r'^([A-Za-z]+\s+\d+\s+\d+:\d+:\d+)\s+(\w+)\s+(\w+):\s+(.*)$', line)
                     if match:
                         log_date_str = match.group(1)
@@ -96,7 +88,6 @@ def collect_event_logs_linux(log_files=['/var/log/auth.log', '/var/log/syslog', 
             console.print(f"[bold red]Log file {log_file} not found. Make sure you have the correct path and permissions.[/bold red]")
     return logs
 
-# Function to extract command history from Linux
 def collect_command_history_linux(command_history_file='~/.bash_history'):
     logs = []
     try:
@@ -134,7 +125,6 @@ def collect_network_activity_linux(network_log_file='/var/log/syslog'):
         console.print(f"[bold red]Network log file {network_log_file} not found. Make sure you have the correct path and permissions.[/bold red]")
     return logs
 
-# Function to clean and structure the collected data
 def clean_data(logs):
     df = pd.DataFrame(logs)
     if 'TimeGenerated' in df.columns:
@@ -142,14 +132,11 @@ def clean_data(logs):
         df.dropna(subset=['TimeGenerated'], inplace=True)
     return df
 
-# Function to analyze user activities
 def analyze_logs(df):
-    # Calculate login frequency and activity duration
     logins = df[df['Message'].str.contains('session opened|login|auth', case=False, na=False)]
     logins_count = logins['ComputerName'].value_counts()
     session_durations = logins.groupby('ComputerName')['TimeGenerated'].apply(lambda x: x.diff().mean())
 
-    # Display login frequencies in a table
     table = Table(title="Login Frequencies", box=box.SIMPLE_HEAVY)
     table.add_column("User", no_wrap=True)
     table.add_column("Login Count")
@@ -163,12 +150,10 @@ def analyze_logs(df):
     console.print(table)
     return logins_count, session_durations
 
-# Function to analyze network activity
 def analyze_network_activity(df):
     network_logs = df[df['Message'].str.contains('network|eth0|wlan|dhcp|netstat', case=False, na=False)]
     network_activity_count = network_logs['ComputerName'].value_counts()
 
-    # Display network activity frequencies in a table
     table = Table(title="Network Activity Frequencies", box=box.SIMPLE_HEAVY)
     table.add_column("User", no_wrap=True)
     table.add_column("Network Activity Count")
@@ -179,13 +164,11 @@ def analyze_network_activity(df):
     console.print(table)
     return network_activity_count
 
-# Function to analyze anomalies in user activities
 def analyze_anomalies(df):
     anomalies = df[(df['TimeGenerated'].dt.hour < 6) | (df['TimeGenerated'].dt.hour > 22)]
     console.print(f"[bold yellow]Number of logins at unusual hours: {len(anomalies)}[/bold yellow]")
     return anomalies
 
-# Function to visualize user activities
 def visualize_activity(logins_count, session_durations, output_dir):
     if not logins_count.empty:
         plt.figure(figsize=(8, 6))
@@ -210,7 +193,6 @@ def visualize_activity(logins_count, session_durations, output_dir):
     else:
         console.print("[bold yellow]No login data available to visualize.[/bold yellow]")
 
-# Function to visualize command usage frequency
 def visualize_command_frequency(command_logs, output_dir):
     if command_logs:
         df_commands = pd.DataFrame(command_logs)
@@ -230,7 +212,6 @@ def visualize_command_frequency(command_logs, output_dir):
     else:
         console.print("[bold yellow]No command data available to visualize.[/bold yellow]")
 
-# Function to visualize network activity
 def visualize_network_activity(network_activity_count, output_dir):
     if not network_activity_count.empty:
         plt.figure(figsize=(10, 6))
@@ -245,15 +226,11 @@ def visualize_network_activity(network_activity_count, output_dir):
     else:
         console.print("[bold yellow]No network activity data available to visualize.[/bold yellow]")
 
-# Main function
 def main():
-    # Ensure the 'data' directory exists
     data_dir = ensure_data_directory()
 
-    # Determine the platform
     system_platform = platform.system()
 
-    # Step 1: Collect event logs based on the platform
     logs = []
     command_logs = []
     network_logs = []
@@ -263,20 +240,16 @@ def main():
         network_logs = collect_network_activity_windows()
         logs.extend(network_logs)
     elif system_platform == "Linux" or system_platform == "Darwin":
-        # Collect system logs
         logs = collect_event_logs_linux()
         logs.extend(command_logs)
-        # Collect network activity logs
         network_logs = collect_network_activity_linux()
         logs.extend(network_logs)
     else:
         console.print(f"[bold red]Unsupported platform: {system_platform}[/bold red]")
         return
 
-    # Step 2: Clean and prepare data for analysis
     df = clean_data(logs)
 
-    # Step 3: Analyze data
     if not df.empty:
         console.print("Analyzing Logs")
         login_counts, session_durations = analyze_logs(df)
@@ -286,7 +259,6 @@ def main():
         console.print("[bold yellow]No logs available for analysis.[/bold yellow]")
         return
 
-    # Step 4: Visualize the analysis results
     if not login_counts.empty:
         console.print("Visualizing Activity")
         visualize_activity(login_counts, session_durations, data_dir)
@@ -295,7 +267,6 @@ def main():
     else:
         console.print("[bold yellow]No login data available for visualization.[/bold yellow]")
 
-    # Save collected data as JSON for future use
     log_path = os.path.join(data_dir, 'logs.json')
     with open(log_path, 'w') as f:
         json.dump(logs, f, default=str)
