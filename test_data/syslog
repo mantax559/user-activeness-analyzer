@@ -1,0 +1,11 @@
+Oct 15 08:05:30 ubuntu systemd[1]: Started Session 1 of user user1.
+Oct 15 08:08:12 ubuntu kernel: [12345.678901] CPU0: Thermal throttling activated
+Oct 15 08:10:20 ubuntu dbus-daemon[1002]: [system] Activating service name='org.freedesktop.login1' requested by ':1.2' (uid=1000 pid=1234 comm="gnome-session")
+Oct 15 08:12:40 ubuntu systemd[1]: Stopping Session 1 of user user1.
+Oct 15 08:15:50 ubuntu kernel: [12356.789012] eth0: Link up
+Oct 15 08:18:05 ubuntu systemd[1]: Started Session 2 of user user2.
+Oct 15 08:20:15 ubuntu dbus-daemon[1024]: [system] Activating service name='org.freedesktop.systemd1' requested by ':1.3' (uid=1001 pid=1300 comm="apt-get")
+Oct 15 08:25:30 ubuntu systemd[1]: Starting Session 3 of user user3.
+Oct 15 08:30:50 ubuntu kernel: [12367.890123] eth0: Link down
+Oct 15 08:35:10 ubuntu systemd[1]: Started Session 4 of user user1.
+Oct 15 08:40:15 ubuntu systemd[1]: Starting Session 5 of user user2.
