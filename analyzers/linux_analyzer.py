@@ -4,6 +4,7 @@ from datetime import datetime
 matplotlib.use('Agg')
 from rich.console import Console
 console = Console()
+import re
 
 class LinuxAnalyzer(SystemAnalyzer):
     def collect_event_logs(self):
