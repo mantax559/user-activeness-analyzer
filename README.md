@@ -8,7 +8,7 @@ A simple tool for analyzing user activity on Windows and Linux systems through l
 
 ## Features
 
-- **Cross-Platform Support**: Works on Windows and Linux.
+- **Cross-Platform Support**: Works on Windows, macOS and Linux.
 - **Log Parsing**: Analyzes logs like `/var/log/auth.log`, `.bash_history`, and Windows Event Viewer logs.
 - **User Profiling**: Identifies patterns in login times, command usage, and session lengths.
 - **Visualization**: Generates graphs and charts for easy analysis of user behavior.
@@ -40,16 +40,20 @@ A simple tool for analyzing user activity on Windows and Linux systems through l
    cd user-activeness-analyzer
 
 2. **Setup virtual environment (recommended)**
+```
    python -m venv venv
    # On Windows:
    venv\Scripts\activate
    # On Linux/macOS:
    source venv/bin/activate
+```
 
 3. **Installl dependencies**
+```
 pip install -r requirements.txt # For Linux
 pip install -r requirements_macos.txt  # For macOS
 pip install -r requirements_win.txt   # For Windows
+```
 
 4. **Run the tool**
 Ensure proper permissions. On Windows, run your terminal or IDE as Administrator to access Event Viewer logs.
