@@ -51,7 +51,8 @@ A tool for analyzing both Windows and Linux user activity patterns through syste
 3. **Install dependencies**:
 
    ```bash
-   pip install pandas matplotlib pywin32 rich
+   pip install -r requirements_win.txt (if Windows)
+   pip install -r requirements_macos.txt (if macOS/Linux)
    ```
 
 ### Running the Analysis
