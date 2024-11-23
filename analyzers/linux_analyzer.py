@@ -7,10 +7,13 @@ console = Console()
 import re
 
 class LinuxAnalyzer(SystemAnalyzer):
+    def __init__(self, log_files = ['/var/log/auth.log', '/var/log/syslog', '/var/log/kern.log']):
+        self.log_files = log_files
+        self.network_log_file = log_files[1]
+
     def collect_event_logs(self):
         logs = []
-        log_files = ['/var/log/auth.log', '/var/log/syslog', '/var/log/kern.log']
-        for log_file in log_files:
+        for log_file in self.log_files:
             try:
                 with open(log_file, 'r') as file:
                     for line in file:
@@ -33,9 +36,8 @@ class LinuxAnalyzer(SystemAnalyzer):
 
     def collect_network_activity(self):
         logs = []
-        network_log_file = '/var/log/syslog'
         try:
-            with open(network_log_file, 'r') as file:
+            with open(self.network_log_file, 'r') as file:
                 for line in file:
                     if 'network' in line.lower() or 'eth0' in line.lower() or 'wlan' in line.lower() or 'dhcp' in line.lower():
                         match = re.match(r'^([A-Za-z]+\s+\d+\s+\d+:\d+:\d+)\s+(\w+)\s+(\w+):\s+(.*)$', line)
@@ -52,5 +54,5 @@ class LinuxAnalyzer(SystemAnalyzer):
                                 'ComputerName': match.group(2)
                             })
         except FileNotFoundError:
-            console.print(f"[bold red]Network log file {network_log_file} not found.[/bold red]")
+            console.print(f"[bold red]Network log file {self.network_log_file} not found.[/bold red]")
         return logs

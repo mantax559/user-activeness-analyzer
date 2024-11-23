@@ -13,6 +13,8 @@ from rich.console import Console
 
 console = Console()
 
+SIMULATION_MODE = True
+
 def ensure_data_directory():
     data_dir = "data"
     if not os.path.exists(data_dir):
@@ -21,6 +23,15 @@ def ensure_data_directory():
 
 def get_system_analyzer():
     system_platform = platform.system()
+
+    if SIMULATION_MODE:
+        test_data_dir = "test_data"
+        return LinuxAnalyzer([
+            os.path.join(test_data_dir, 'auth.log'),
+            os.path.join(test_data_dir, 'syslog'),
+            os.path.join(test_data_dir, 'kern.log')
+        ])
+    
     if system_platform == "Windows":
         return WindowsAnalyzer()
     elif system_platform == "Linux":
