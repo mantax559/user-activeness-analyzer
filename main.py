@@ -47,15 +47,16 @@ def main():
     anomalies_processor = AnomaliesProcessor()
     visualizer = Visualizer()
 
-    if not df.empty:
-        login_counts, session_durations = logins_processor.analyze(df)
-        network_activity_count = network_activity_processor.analyze(df)
-        anomalies_processor.analyze(df)
-
-        visualizer.visualize_activity(login_counts, session_durations, data_dir)
-        visualizer.visualize_network_activity(network_activity_count, data_dir)
-    else:
+    if df.empty:
         print("No logs available for analysis.")
+        return
+    
+    login_counts, session_durations = logins_processor.analyze(df)
+    network_activity_count = network_activity_processor.analyze(df)
+    anomalies_processor.analyze(df)
 
+    visualizer.visualize_activity(login_counts, session_durations, data_dir)
+    visualizer.visualize_network_activity(network_activity_count, data_dir)
+    
 if __name__ == "__main__":
     main()
