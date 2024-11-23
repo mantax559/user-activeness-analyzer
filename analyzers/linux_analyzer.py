@@ -19,7 +19,7 @@ class LinuxAnalyzer(SystemAnalyzer):
             try:
                 with open(log_file, 'r') as file:
                     for line in file:
-                        match = re.match(r'^([A-Za-z]{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+(\w+)\s+(sshd\[\d+\]:\s+.*|systemd\[\d+\]:\s+.*(?i)reboot.*)$', line)
+                        match = re.match(r'(?i)^([A-Za-z]{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+(\w+)\s+(sshd\[\d+\]:\s+.*|systemd\[\d+\]:\s+.*reboot.*)$', line)
                         if match:
                             log_date_str = match.group(1)
                             try:
