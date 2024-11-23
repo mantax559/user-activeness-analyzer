@@ -29,7 +29,7 @@ class LinuxAnalyzer(SystemAnalyzer):
                                 continue
 
                             message = match.group(3).lower()
-                            if "failed password" in message:
+                            if any(substring in message for substring in ["failed password", "authentication failure"]):
                                 failed_login_attempts += 1
                             
                             if any(substring in message for substring in ["reboot", "rebooting"]):
