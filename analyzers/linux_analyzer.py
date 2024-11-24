@@ -97,34 +97,21 @@ class LinuxAnalyzer(SystemAnalyzer):
     def collect_bash_logs(self):
         logs = []
 
-        log_pattern = re.compile(
-            r'^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00)\s+'
-            r'(?P<hostname>[\w\-.]+)\s+(?P<source>\S+):\s+(?P<message>.+)$'
-        )
-
         try:
             with open(self.bash_log_file, 'r') as file:
                 for line in file:
-                    match = log_pattern.match(line)
-                    if match:
-                        log_data = match.groupdict()
-
-                        try:
-                            log_date = datetime.strptime(log_data["timestamp"], '%Y-%m-%dT%H:%M:%S.%f+00:00')
-                        except ValueError:
-                            console.print(f"[bold red]Invalid timestamp format: {log_data['timestamp']}[/bold red]")
-                            continue
-
+                    line = line.strip()
+                    if line:
                         logs.append({
-                            'TimeGenerated': log_date,
-                            'SourceName': log_data["source"],
-                            'Message': log_data["message"],
-                            'ComputerName': log_data["hostname"],
+                            'TimeGenerated': datetime.now(),
+                            'SourceName': 'bash',
+                            'Message': line,
+                            'ComputerName': os.uname().nodename,
                         })
 
         except FileNotFoundError:
-            console.print(f"[bold red]Bash log file {self.bash_log_file} not found.[/bold red]")
+            console.print(f"[bold red]Bash history file {self.bash_log_file} not found.[/bold red]")
         except Exception as e:
-            console.print(f"[bold red]An error occurred while reading bash logs: {e}[/bold red]")
+            console.print(f"[bold red]An error occurred while reading bash history: {e}[/bold red]")
 
         return logs
