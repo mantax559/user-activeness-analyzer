@@ -7,9 +7,10 @@ console = Console()
 import re
 
 class LinuxAnalyzer(SystemAnalyzer):
-    def __init__(self, log_files=['/var/log/auth.log', '/var/log/syslog', '/var/log/kern.log']):
+    def __init__(self, log_files=['/var/log/auth.log', '/var/log/syslog', '/var/log/kern.log', '~/.bash_history']):
         self.log_files = log_files
         self.network_log_file = log_files[1]
+        self.bash_log_file = log_files[-1]
 
     def collect_event_logs(self):
         logs = []
@@ -93,15 +94,8 @@ class LinuxAnalyzer(SystemAnalyzer):
         return logs
     
     def collect_bash_logs(self):
-        """
-        Collects bash-related logs based on the specified format.
-
-        Returns:
-            list: A list of dictionaries containing parsed log entries.
-        """
         logs = []
 
-        # Regex pattern to match the bash log format
         log_pattern = re.compile(
             r'^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00)\s+'
             r'(?P<hostname>[\w\-.]+)\s+(?P<source>\S+):\s+(?P<message>.+)$'
