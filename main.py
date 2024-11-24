@@ -27,8 +27,8 @@ def get_system_analyzer():
     if SIMULATION_MODE:
         test_data_dir = "test_data"
         return LinuxAnalyzer([
-            os.path.join(test_data_dir, 'auth.log'),
-            os.path.join(test_data_dir, 'syslog'),
+            os.path.join(test_data_dir, 'auth_real.log'),
+            os.path.join(test_data_dir, 'syslog_real.log'),
             os.path.join(test_data_dir, 'kern.log')
         ])
     
@@ -67,12 +67,12 @@ def main():
         return
     
     login_counts, session_durations, failed_logins, reboot_events = logins_processor.analyze(df)
-    network_activity_count = network_activity_processor.analyze(df)
+    network_activity_count, activity_types = network_activity_processor.analyze(df)
     anomalies_processor.analyze(df)
 
 
     visualizer.visualize_activity(login_counts, session_durations, failed_logins, reboot_events, data_dir)
-    visualizer.visualize_network_activity(network_activity_count, data_dir)
+    visualizer.visualize_network_activity(network_activity_count, activity_types, data_dir)
 
     log_path = os.path.join(data_dir, 'logs.json')
     with open(log_path, 'w') as f:

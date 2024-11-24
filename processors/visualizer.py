@@ -53,16 +53,30 @@ class Visualizer:
         if logins_count.empty and session_durations.empty and failed_logins.empty and reboot_events.empty:
             console.print("[bold yellow]No data available to visualize.[/bold yellow]")
 
-    def visualize_network_activity(self, network_activity_count, output_dir):
+    def visualize_network_activity(self, network_activity_count, activity_types, output_dir):
         if not network_activity_count.empty:
             plt.figure(figsize=(10, 6))
-            network_activity_count.plot(kind='bar', title='Network Activity Frequency per User')
-            plt.xlabel('User')
-            plt.ylabel('Network Activity Count')
+            network_activity_count.plot(kind='bar', title='Network Activity Frequency per Computer')
+            plt.xlabel('Computer Name')
+            plt.ylabel('Activity Count')
             plt.xticks(rotation=45)
             plt.tight_layout()
-            output_path = os.path.join(output_dir, 'network_activity.png')
-            plt.savefig(output_path)
-            console.print(f"[bold green]Network activity visualization saved as '{output_path}'[/bold green]")
+            output_path1 = os.path.join(output_dir, 'network_activity_by_computer.png')
+            plt.savefig(output_path1)
+            console.print(f"[bold green]Network activity by computer saved as '{output_path1}'[/bold green]")
+            plt.close()
         else:
-            console.print("[bold yellow]No network activity data available to visualize.[/bold yellow]")
+            console.print("[bold yellow]No network activity data available for computers.[/bold yellow]")
+        if not activity_types.empty:
+            plt.figure(figsize=(10, 6))
+            activity_types.plot(kind='bar', title='Activity Type Frequency')
+            plt.xlabel('Activity Type')
+            plt.ylabel('Count')
+            plt.xticks(rotation=45)
+            plt.tight_layout()
+            output_path2 = os.path.join(output_dir, 'activity_type_distribution.png')
+            plt.savefig(output_path2)
+            console.print(f"[bold green]Activity type distribution saved as '{output_path2}'[/bold green]")
+            plt.close()
+        else:
+            console.print("[bold yellow]No activity type data available to visualize.[/bold yellow]")
