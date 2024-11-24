@@ -1,5 +1,6 @@
 import re
 import os
+import platform
 from datetime import datetime
 from rich.console import Console
 from analyzers.system_analyzer import SystemAnalyzer
@@ -54,7 +55,7 @@ class LinuxAnalyzer(SystemAnalyzer):
                         'TimeGenerated': datetime.now(),
                         'SourceName': 'bash',
                         'Message': line.strip(),
-                        'ComputerName': os.uname().nodename,
+                        'ComputerName': os.uname().nodename if platform.system() == "Linux" else "N/A",
                     }
                     for line in file if line.strip()
                 ]
