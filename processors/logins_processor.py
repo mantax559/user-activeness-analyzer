@@ -1,7 +1,7 @@
-import pandas as pd
 from rich.console import Console
 from rich.table import Table
 from rich import box
+import pandas as pd
 
 console = Console()
 
@@ -10,7 +10,6 @@ class LoginsProcessor:
         logins = df[df['Message'].str.contains('session opened|login|auth', case=False, na=False)]
         logins_count = logins['ComputerName'].value_counts()
         session_durations = logins.groupby('ComputerName')['TimeGenerated'].apply(lambda x: x.diff().mean())
-
         failed_logins = df.groupby('ComputerName')['FailedLoginAttempts'].max()
         reboot_events = df.groupby('ComputerName')['RebootEvents'].max()
 

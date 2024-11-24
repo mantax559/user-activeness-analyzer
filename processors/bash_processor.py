@@ -1,7 +1,6 @@
 from rich.console import Console
 from rich.table import Table
 from rich import box
-import pandas as pd
 
 console = Console()
 
@@ -13,7 +12,6 @@ class BashProcessor:
         command_counts = bash_logs['ComputerName'].value_counts()
 
         bash_logs['User'] = bash_logs['Message'].str.extract(r'(?i)(\w+) executed')
-
         command_types = bash_logs['Message'].str.extract(r'(?i)(ls|cd|cat|mkdir|rm|touch|chmod|chown|echo|sudo|grep)').fillna('other')
         command_type_counts = command_types[0].value_counts()
 
