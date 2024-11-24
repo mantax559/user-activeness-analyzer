@@ -56,6 +56,8 @@ def main():
     logs = analyzer.collect_event_logs()
     network_logs = analyzer.collect_network_activity()
     logs += network_logs
+    bash_logs = analyzer.collect_bash_logs()
+    logs += bash_logs
     df = clean_data(logs)
 
     logins_processor = LoginsProcessor()
