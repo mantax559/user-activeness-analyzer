@@ -8,6 +8,7 @@ from analyzers.mac_os_analyzer import MacOSAnalyzer
 from processors.logins_processor import LoginsProcessor
 from processors.network_activity_processor import NetworkActivityProcessor
 from processors.anomalies_processor import AnomaliesProcessor
+from processors.bash_processor import BashProcessor
 from processors.visualizer import Visualizer
 from rich.console import Console
 
@@ -60,6 +61,7 @@ def main():
     logins_processor = LoginsProcessor()
     network_activity_processor = NetworkActivityProcessor()
     anomalies_processor = AnomaliesProcessor()
+    bash_processor = BashProcessor()
     visualizer = Visualizer()
     
     if df.empty:
@@ -68,11 +70,13 @@ def main():
     
     login_counts, session_durations, failed_logins, reboot_events = logins_processor.analyze(df)
     network_activity_count, activity_types = network_activity_processor.analyze(df)
+    command_counts, user_activity, failed_commands = bash_processor.analyze(df)
     anomalies_processor.analyze(df)
 
 
     visualizer.visualize_activity(login_counts, session_durations, failed_logins, reboot_events, data_dir)
     visualizer.visualize_network_activity(network_activity_count, activity_types, data_dir)
+    visualizer.visualize_bash_activity(command_counts, user_activity, failed_commands, data_dir)
 
     log_path = os.path.join(data_dir, 'logs.json')
     with open(log_path, 'w') as f:
