@@ -5,11 +5,13 @@ matplotlib.use('Agg')
 from rich.console import Console
 console = Console()
 import re
+import os
 
 class LinuxAnalyzer(SystemAnalyzer):
-    def __init__(self, log_files=['/var/log/auth.log', '/var/log/syslog', '/var/log/kern.log']):
+    def __init__(self, log_files=['/var/log/auth.log', '/var/log/syslog', '/var/log/kern.log', '/home/vboxuser/.bash_history']):
         self.log_files = log_files
         self.network_log_file = log_files[1]
+        self.bash_log_file = log_files[-1]
 
     def collect_event_logs(self):
         logs = []
@@ -89,5 +91,26 @@ class LinuxAnalyzer(SystemAnalyzer):
             console.print(f"[bold red]Network log file {self.network_log_file} not found.[/bold red]")
         except Exception as e:
             console.print(f"[bold red]An error occurred: {e}[/bold red]")
-        print("Will return logs", logs)
+        return logs
+    
+    def collect_bash_logs(self):
+        logs = []
+
+        try:
+            with open(self.bash_log_file, 'r') as file:
+                for line in file:
+                    line = line.strip()
+                    if line:
+                        logs.append({
+                            'TimeGenerated': datetime.now(),
+                            'SourceName': 'bash',
+                            'Message': line,
+                            'ComputerName': os.uname().nodename,
+                        })
+
+        except FileNotFoundError:
+            console.print(f"[bold red]Bash history file {self.bash_log_file} not found.[/bold red]")
+        except Exception as e:
+            console.print(f"[bold red]An error occurred while reading bash history: {e}[/bold red]")
+
         return logs
