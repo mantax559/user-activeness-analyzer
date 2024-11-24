@@ -5,12 +5,14 @@ matplotlib.use('Agg')
 from rich.console import Console
 console = Console()
 import re
+import os
 
 class LinuxAnalyzer(SystemAnalyzer):
-    def __init__(self, log_files=['/var/log/auth.log', '/var/log/syslog', '/var/log/kern.log', '~/.bash_history']):
+    def __init__(self, log_files=['/var/log/auth.log', '/var/log/syslog', '/var/log/kern.log']):
         self.log_files = log_files
         self.network_log_file = log_files[1]
-        self.bash_log_file = log_files[-1]
+        bash_history_file = os.getenv('HISTFILE', os.path.expanduser('~/.bash_history'))
+        self.bash_log_file = bash_history_file
 
     def collect_event_logs(self):
         logs = []
