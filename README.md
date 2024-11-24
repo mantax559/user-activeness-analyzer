@@ -20,6 +20,29 @@ A simple tool for analyzing user activity on Windows and Linux systems through l
 - **Matplotlib**: For creating charts to visualize activity.
 - **Rich**: For formatted console output (optional).
 
+## Simulation Mode for Easier Setup
+
+If you're struggling to set up the application on a VirtualBox machine:
+
+Our app comes with a **Simulation Mode** to make your life easier while you're getting things running. Here's how it works:
+
+### What's Simulation Mode?
+- **Enabled by default**: The constant `SIMULATION_MODE` is set to `True`.
+- **Test Data**: When enabled, the app will use data from the `test_data/` directory (so you don’t need real logs to get started).
+- **Real Data**: If you’re ready to switch to actual log files, just set `SIMULATION_MODE` to `False` in the configuration.
+
+### How to Check/Change the Mode 🛠️
+1. Open the main.py file where `SIMULATION_MODE` is defined.
+2. Change the constant to True or False
+3. Save the file and restart the application.
+
+### Why Use Simulation Mode?
+- Avoids headaches when setting up on a virtual machine.
+- Helps you test the app’s functionality without needing real-world data right away.
+- Perfect for learning and debugging before going live.
+
+So go ahead, use Simulation Mode to get started hassle-free, and feel confident when you're ready to switch to real data.
+
 ## Setup Instructions
 
 ### 1. Set up Ubuntu on VirtualBox
