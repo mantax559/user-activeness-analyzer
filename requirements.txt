@@ -1,0 +1,4 @@
+pandas
+matplotlib
+rich
+python3.12-venv
