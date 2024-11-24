@@ -13,9 +13,6 @@ class BashProcessor:
         command_counts = bash_logs['ComputerName'].value_counts()
 
         bash_logs['User'] = bash_logs['Message'].str.extract(r'(?i)(\w+) executed')
-        user_activity = bash_logs['User'].value_counts()
-
-        failed_commands = bash_logs[bash_logs['Message'].str.contains('permission denied', case=False, na=False)]
 
         command_types = bash_logs['Message'].str.extract(r'(?i)(ls|cd|cat|mkdir|rm|touch|chmod|chown|echo|sudo|grep)').fillna('other')
         command_type_counts = command_types[0].value_counts()
@@ -27,26 +24,11 @@ class BashProcessor:
             table1.add_row(computer, str(count))
         console.print(table1)
 
-        table2 = Table(title="User Activity Summary", box=box.SIMPLE_HEAVY)
-        table2.add_column("User", no_wrap=True)
-        table2.add_column("Command Count", justify="right")
-        for user, count in user_activity.items():
-            table2.add_row(user, str(count))
+        table2 = Table(title="Command Types and Counts", box=box.SIMPLE_HEAVY)
+        table2.add_column("Command Type", no_wrap=True)
+        table2.add_column("Count", justify="right")
+        for command_type, count in command_type_counts.items():
+            table2.add_row(command_type, str(count))
         console.print(table2)
 
-        table3 = Table(title="Failed Commands", box=box.SIMPLE_HEAVY)
-        table3.add_column("Time", no_wrap=True)
-        table3.add_column("Computer Name", no_wrap=True)
-        table3.add_column("Message")
-        for _, row in failed_commands.iterrows():
-            table3.add_row(str(row['TimeGenerated']), row['ComputerName'], row['Message'])
-        console.print(table3)
-
-        table4 = Table(title="Command Types and Counts", box=box.SIMPLE_HEAVY)
-        table4.add_column("Command Type", no_wrap=True)
-        table4.add_column("Count", justify="right")
-        for command_type, count in command_type_counts.items():
-            table4.add_row(command_type, str(count))
-        console.print(table4)
-
-        return command_counts, user_activity, failed_commands, command_type_counts
+        return command_counts, command_type_counts

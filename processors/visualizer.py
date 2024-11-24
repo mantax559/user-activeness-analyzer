@@ -81,7 +81,7 @@ class Visualizer:
         else:
             console.print("[bold yellow]No activity type data available to visualize.[/bold yellow]")
 
-    def visualize_bash_activity(self, command_counts, user_activity, failed_commands, command_type_counts, output_dir):
+    def visualize_bash_activity(self, command_counts,command_type_counts, output_dir):
         if not command_counts.empty:
             plt.figure(figsize=(10, 6))
             command_counts.plot(kind='bar', title='Command Execution by Computer')
@@ -95,34 +95,6 @@ class Visualizer:
             plt.close()
         else:
             console.print("[bold yellow]No command execution data available to visualize.[/bold yellow]")
-
-        if not user_activity.empty:
-            plt.figure(figsize=(10, 6))
-            user_activity.plot(kind='bar', title='User Activity')
-            plt.xlabel('User')
-            plt.ylabel('Command Count')
-            plt.xticks(rotation=45)
-            plt.tight_layout()
-            output_path2 = os.path.join(output_dir, 'user_activity.png')
-            plt.savefig(output_path2)
-            console.print(f"[bold green]User activity visualization saved as '{output_path2}'[/bold green]")
-            plt.close()
-        else:
-            console.print("[bold yellow]No user activity data available to visualize.[/bold yellow]")
-
-        if not failed_commands.empty:
-            plt.figure(figsize=(10, 6))
-            failed_commands['ComputerName'].value_counts().plot(kind='bar', title='Failed Commands by Computer')
-            plt.xlabel('Computer Name')
-            plt.ylabel('Failed Command Count')
-            plt.xticks(rotation=45)
-            plt.tight_layout()
-            output_path3 = os.path.join(output_dir, 'failed_commands_by_computer.png')
-            plt.savefig(output_path3)
-            console.print(f"[bold green]Failed commands visualization saved as '{output_path3}'[/bold green]")
-            plt.close()
-        else:
-            console.print("[bold yellow]No failed command data available to visualize.[/bold yellow]")
         if not command_type_counts.empty:
             plt.figure(figsize=(10, 6))
             command_type_counts.plot(kind='bar', title='Failed Commands by Computer')
