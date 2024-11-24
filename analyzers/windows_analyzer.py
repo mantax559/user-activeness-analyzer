@@ -1,5 +1,7 @@
-import win32evtlog
-import win32evtlogutil
+import platform
+if platform.system() == "Windows":
+    import win32evtlog
+    import win32evtlogutil
 from datetime import datetime
 from analyzers.system_analyzer import SystemAnalyzer
 from rich.console import Console
