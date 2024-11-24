@@ -1,7 +1,6 @@
 from rich.console import Console
 from rich.table import Table
 from rich import box
-import pandas as pd
 
 console = Console()
 
@@ -10,7 +9,7 @@ class NetworkActivityProcessor:
         keywords = ['network', 'eth0', 'wlan', 'dhcp', 'netstat', 'connection', 'disconnected', 'reconnected']
         network_logs = df[df['Message'].str.contains('|'.join(keywords), case=False, na=False)]
 
-        network_activity_count = network_logs['ComputerName'].value_counts().fillna(0)
+        network_activity_count = network_logs['ComputerName'].value_counts()
 
         table = Table(title="Network Activity Analysis", box=box.SIMPLE_HEAVY)
         table.add_column("Computer Name", no_wrap=True)
@@ -21,7 +20,7 @@ class NetworkActivityProcessor:
         console.print(table)
 
         activity_types = network_logs['Message'].str.extract(r'(?i)(connected|disconnected|dhcp|interface|link|error)').fillna("Unknown")
-        activity_type_counts = activity_types[0].value_counts().fillna(0)
+        activity_type_counts = activity_types[0].value_counts()
 
         table2 = Table(title="Activity Type Frequencies", box=box.SIMPLE_HEAVY)
         table2.add_column("Activity Type", no_wrap=True)

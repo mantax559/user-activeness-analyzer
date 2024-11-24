@@ -1,14 +1,20 @@
-import matplotlib
-from analyzers.system_analyzer import SystemAnalyzer
-from datetime import datetime
-matplotlib.use('Agg')
-from rich.console import Console
-console = Console()
 import re
 import os
+from datetime import datetime
+from rich.console import Console
+from analyzers.system_analyzer import SystemAnalyzer
+
+console = Console()
 
 class LinuxAnalyzer(SystemAnalyzer):
-    def __init__(self, log_files=['/var/log/auth.log', '/var/log/syslog', '/var/log/kern.log', '/home/vboxuser/.bash_history']):
+    def __init__(self, log_files=None):
+        if log_files is None:
+            log_files = [
+                '/var/log/auth.log',
+                '/var/log/syslog',
+                '/var/log/kern.log',
+                '/home/vboxuser/.bash_history'
+            ]
         self.log_files = log_files
         self.network_log_file = log_files[1]
         self.bash_log_file = log_files[-1]
@@ -19,44 +25,12 @@ class LinuxAnalyzer(SystemAnalyzer):
         reboot_events = 0
 
         log_pattern = re.compile(
-            r'^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00)\s+(?P<hostname>[\w\-.]+)\s+(?P<service>\S+): (?P<message>.+)$'
+            r'^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00)\s+'
+            r'(?P<hostname>[\w\-.]+)\s+(?P<service>\S+):\s+(?P<message>.+)$'
         )
 
         for log_file in self.log_files:
-            try:
-                with open(log_file, 'r') as file:
-                    for line in file:
-                        match = log_pattern.match(line)
-                        if match:
-                            log_data = match.groupdict()
-                            timestamp = log_data["timestamp"]
-                            hostname = log_data["hostname"]
-                            service = log_data["service"]
-                            message = log_data["message"]
-
-                            try:
-                                log_date = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%f+00:00')
-                            except ValueError:
-                                console.print(f"[bold red]ERR: Invalid timestamp format: {timestamp}[/bold red]")
-                                continue
-
-                            if "authentication failure" in message.lower() or "failed password" in message.lower():
-                                failed_login_attempts += 1
-
-                            if "reboot" in message.lower():
-                                reboot_events += 1
-
-                            logs.append({
-                                'TimeGenerated': log_date,
-                                'SourceName': service,
-                                'Message': message,
-                                'ComputerName': hostname,
-                                'FailedLoginAttempts': failed_login_attempts,
-                                'RebootEvents': reboot_events
-                            })
-
-            except FileNotFoundError:
-                console.print(f"[bold red]Log file {log_file} not found.[/bold red]")
+            logs.extend(self._process_log_file(log_file, log_pattern, failed_login_attempts, reboot_events))
         return logs
 
     def collect_network_activity(self):
@@ -67,6 +41,64 @@ class LinuxAnalyzer(SystemAnalyzer):
             r'(?P<hostname>[\w\-.]+)\s+(?P<source>\S+):\s+(?P<message>.+)$'
         )
 
+        logs.extend(self._process_network_logs(log_pattern))
+        return logs
+
+    def collect_bash_logs(self):
+        logs = []
+
+        try:
+            with open(self.bash_log_file, 'r') as file:
+                logs = [
+                    {
+                        'TimeGenerated': datetime.now(),
+                        'SourceName': 'bash',
+                        'Message': line.strip(),
+                        'ComputerName': os.uname().nodename,
+                    }
+                    for line in file if line.strip()
+                ]
+        except FileNotFoundError:
+            console.print(f"[bold red]Bash history file {self.bash_log_file} not found.[/bold red]")
+        except Exception as e:
+            console.print(f"[bold red]An error occurred while reading bash history: {e}[/bold red]")
+
+        return logs
+
+    def _process_log_file(self, log_file, log_pattern, failed_login_attempts, reboot_events):
+        logs = []
+        try:
+            with open(log_file, 'r') as file:
+                for line in file:
+                    match = log_pattern.match(line)
+                    if match:
+                        log_data = match.groupdict()
+                        try:
+                            log_date = datetime.strptime(log_data["timestamp"], '%Y-%m-%dT%H:%M:%S.%f+00:00')
+                        except ValueError:
+                            console.print(f"[bold red]ERR: Invalid timestamp format: {log_data['timestamp']}[/bold red]")
+                            continue
+
+                        message = log_data["message"].lower()
+                        if "authentication failure" in message or "failed password" in message:
+                            failed_login_attempts += 1
+                        if "reboot" in message:
+                            reboot_events += 1
+
+                        logs.append({
+                            'TimeGenerated': log_date,
+                            'SourceName': log_data["service"],
+                            'Message': log_data["message"],
+                            'ComputerName': log_data["hostname"],
+                            'FailedLoginAttempts': failed_login_attempts,
+                            'RebootEvents': reboot_events
+                        })
+        except FileNotFoundError:
+            console.print(f"[bold red]Log file {log_file} not found.[/bold red]")
+        return logs
+
+    def _process_network_logs(self, log_pattern):
+        logs = []
         try:
             with open(self.network_log_file, 'r') as file:
                 for line in file:
@@ -74,7 +106,6 @@ class LinuxAnalyzer(SystemAnalyzer):
                         match = log_pattern.match(line)
                         if match:
                             log_data = match.groupdict()
-
                             try:
                                 log_date = datetime.strptime(log_data["timestamp"], '%Y-%m-%dT%H:%M:%S.%f+00:00')
                             except ValueError:
@@ -91,26 +122,4 @@ class LinuxAnalyzer(SystemAnalyzer):
             console.print(f"[bold red]Network log file {self.network_log_file} not found.[/bold red]")
         except Exception as e:
             console.print(f"[bold red]An error occurred: {e}[/bold red]")
-        return logs
-    
-    def collect_bash_logs(self):
-        logs = []
-
-        try:
-            with open(self.bash_log_file, 'r') as file:
-                for line in file:
-                    line = line.strip()
-                    if line:
-                        logs.append({
-                            'TimeGenerated': datetime.now(),
-                            'SourceName': 'bash',
-                            'Message': line,
-                            'ComputerName': os.uname().nodename,
-                        })
-
-        except FileNotFoundError:
-            console.print(f"[bold red]Bash history file {self.bash_log_file} not found.[/bold red]")
-        except Exception as e:
-            console.print(f"[bold red]An error occurred while reading bash history: {e}[/bold red]")
-
         return logs
