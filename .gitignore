@@ -1,3 +1,5 @@
 .idea
-venv
+analyzers/__pycache__
+processors/__pycache__
 data
+venv
