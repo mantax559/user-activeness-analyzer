@@ -70,8 +70,8 @@ A comprehensive tool for analyzing user activity on Windows and Linux systems th
 
 3. **Install dependencies**:
    ```bash
-   pip install -r requirements_linux.txt  # For Linux
    pip install -r requirements_windows.txt  # For Windows
+   pip install -r requirements_linux.txt  # For Linux
    ```
 
 4. **Run the tool**:
