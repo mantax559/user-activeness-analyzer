@@ -4,7 +4,6 @@ import platform
 import json
 from analyzers.windows_analyzer import WindowsAnalyzer
 from analyzers.linux_analyzer import LinuxAnalyzer
-from analyzers.mac_os_analyzer import MacOSAnalyzer
 from processors.logins_processor import LoginsProcessor
 from processors.network_activity_processor import NetworkActivityProcessor
 from processors.anomalies_processor import AnomaliesProcessor
@@ -38,8 +37,6 @@ def get_system_analyzer():
         return WindowsAnalyzer()
     elif system_platform == "Linux":
         return LinuxAnalyzer()
-    elif system_platform == "Darwin":
-        return MacOSAnalyzer()
     else:
         raise NotImplementedError(f"Unsupported platform: {system_platform}")
 
