@@ -91,7 +91,6 @@ class LinuxAnalyzer(SystemAnalyzer):
             console.print(f"[bold red]Network log file {self.network_log_file} not found.[/bold red]")
         except Exception as e:
             console.print(f"[bold red]An error occurred: {e}[/bold red]")
-        print("Will return logs", logs)
         return logs
     
     def collect_bash_logs(self):

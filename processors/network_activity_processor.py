@@ -31,7 +31,4 @@ class NetworkActivityProcessor:
             table2.add_row(activity, str(count))
         console.print(table2)
 
-        print("Processed activity types for visualization:")
-        print(activity_type_counts)
-
         return network_activity_count, activity_type_counts

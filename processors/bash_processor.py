@@ -7,7 +7,7 @@ console = Console()
 
 class BashProcessor:
     def analyze(self, df):
-        bash_logs = df[df['SourceName'].str.contains('bash', case=False, na=False)]
+        bash_logs = df[df['SourceName'].str.contains('bash', case=False, na=False)].copy()
         console.print(f"[bold blue]Bash logs found: {len(bash_logs)}[/bold blue]")
 
         command_counts = bash_logs['ComputerName'].value_counts()
