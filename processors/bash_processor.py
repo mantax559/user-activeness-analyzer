@@ -13,10 +13,12 @@ class BashProcessor:
         command_counts = bash_logs['ComputerName'].value_counts()
 
         bash_logs['User'] = bash_logs['Message'].str.extract(r'(?i)(\w+) executed')
-
         user_activity = bash_logs['User'].value_counts()
 
         failed_commands = bash_logs[bash_logs['Message'].str.contains('permission denied', case=False, na=False)]
+
+        command_types = bash_logs['Message'].str.extract(r'(?i)(ls|cd|cat|mkdir|rm|touch|chmod|chown|echo|sudo|grep)').fillna('other')
+        command_type_counts = command_types[0].value_counts()
 
         table1 = Table(title="Command Execution by Computer", box=box.SIMPLE_HEAVY)
         table1.add_column("Computer Name", no_wrap=True)
@@ -40,4 +42,11 @@ class BashProcessor:
             table3.add_row(str(row['TimeGenerated']), row['ComputerName'], row['Message'])
         console.print(table3)
 
-        return command_counts, user_activity, failed_commands
+        table4 = Table(title="Command Types and Counts", box=box.SIMPLE_HEAVY)
+        table4.add_column("Command Type", no_wrap=True)
+        table4.add_column("Count", justify="right")
+        for command_type, count in command_type_counts.items():
+            table4.add_row(command_type, str(count))
+        console.print(table4)
+
+        return command_counts, user_activity, failed_commands, command_type_counts

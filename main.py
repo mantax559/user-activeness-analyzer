@@ -30,7 +30,8 @@ def get_system_analyzer():
         return LinuxAnalyzer([
             os.path.join(test_data_dir, 'auth_real.log'),
             os.path.join(test_data_dir, 'syslog_real.log'),
-            os.path.join(test_data_dir, 'kern.log')
+            os.path.join(test_data_dir, 'kern.log'),
+            os.path.join(test_data_dir, '.bash_history')
         ])
     
     if system_platform == "Windows":
@@ -72,13 +73,13 @@ def main():
     
     login_counts, session_durations, failed_logins, reboot_events = logins_processor.analyze(df)
     network_activity_count, activity_types = network_activity_processor.analyze(df)
-    command_counts, user_activity, failed_commands = bash_processor.analyze(df)
+    command_counts, user_activity, failed_commands, command_type_counts = bash_processor.analyze(df)
     anomalies_processor.analyze(df)
 
 
     visualizer.visualize_activity(login_counts, session_durations, failed_logins, reboot_events, data_dir)
     visualizer.visualize_network_activity(network_activity_count, activity_types, data_dir)
-    visualizer.visualize_bash_activity(command_counts, user_activity, failed_commands, data_dir)
+    visualizer.visualize_bash_activity(command_counts, user_activity, failed_commands, command_type_counts, data_dir)
 
     log_path = os.path.join(data_dir, 'logs.json')
     with open(log_path, 'w') as f:

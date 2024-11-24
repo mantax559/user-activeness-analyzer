@@ -81,7 +81,7 @@ class Visualizer:
         else:
             console.print("[bold yellow]No activity type data available to visualize.[/bold yellow]")
 
-    def visualize_bash_activity(self, command_counts, user_activity, failed_commands, output_dir):
+    def visualize_bash_activity(self, command_counts, user_activity, failed_commands, command_type_counts, output_dir):
         if not command_counts.empty:
             plt.figure(figsize=(10, 6))
             command_counts.plot(kind='bar', title='Command Execution by Computer')
@@ -123,3 +123,16 @@ class Visualizer:
             plt.close()
         else:
             console.print("[bold yellow]No failed command data available to visualize.[/bold yellow]")
+        if not command_type_counts.empty:
+            plt.figure(figsize=(10, 6))
+            command_type_counts.plot(kind='bar', title='Failed Commands by Computer')
+            plt.xlabel('Command Type')
+            plt.ylabel('Count')
+            plt.xticks(rotation=45)
+            plt.tight_layout()
+            output_path3 = os.path.join(output_dir, 'command_type_counts.png')
+            plt.savefig(output_path3)
+            console.print(f"[bold green]Command type counts visualization saved as '{output_path3}'[/bold green]")
+            plt.close()
+        else:
+            console.print("[bold yellow]No command type counts data available to visualize.[/bold yellow]")
